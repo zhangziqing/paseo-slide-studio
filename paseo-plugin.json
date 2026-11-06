@@ -1,0 +1,9 @@
+{
+  "id": "slide-studio",
+  "name": "Slide Studio",
+  "description": "Edit HTML slide presentations inside Paseo using its existing workspace connection.",
+  "media": [],
+  "requirements": {
+    "paseo": ">=0.15.0"
+  }
+}

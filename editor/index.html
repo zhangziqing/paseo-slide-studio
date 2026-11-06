@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Slide Studio · HTML PPT 编辑器</title>
+  <link rel="stylesheet" href="src/editor.css">
+  <script id="starter-deck" type="application/json">null</script>
+  <script defer src="src/runtime.js"></script>
+  <script defer src="src/core.js"></script>
+  <script defer src="src/workspace.js"></script>
+  <script defer src="src/editor.js"></script>
+</head>
+<body>
+  <header class="app-header">
+    <a class="brand" href="#" aria-label="Slide Studio"><span class="brand-mark" data-icon="slides"></span><span>Slide <b>Studio</b></span><span class="version">LOCAL</span></a>
+    <div class="document-heading"><span id="document-title">HTML PPT 编辑器</span><span id="document-path" class="document-path" hidden></span><span class="save-status" id="save-status" role="status">打开 HTML 即可编辑</span></div>
+    <div class="header-actions">
+      <button id="open-file" class="button"><i data-icon="folder"></i>打开<span class="hide-compact">文件</span></button>
+      <button id="save-project" class="button" disabled><i data-icon="save"></i><span id="save-button-label">保存项目</span></button>
+      <button id="download-project" class="button" hidden><i data-icon="download"></i>下载项目</button>
+      <button id="export-html" class="button primary" disabled><i data-icon="download"></i>导出 HTML</button>
+    </div>
+  </header>
+  <div id="workspace-draft" class="draft-banner" hidden><span>此文件有尚未写回服务器的浏览器草稿。</span><button id="restore-workspace-draft" class="button">恢复草稿</button><button id="dismiss-workspace-draft" class="button">忽略</button></div>
+  <div class="editing-toolbar" role="toolbar" aria-label="编辑工具">
+    <div class="toolbar-group"><button id="undo" class="icon-button" aria-label="撤销" title="撤销 · Ctrl / ⌘ Z" disabled><i data-icon="undo"></i></button><button id="redo" class="icon-button" aria-label="重做" title="重做 · Ctrl / ⌘ Shift Z" disabled><i data-icon="redo"></i></button></div>
+    <span class="divider"></span>
+    <button id="add-text" class="button" disabled><i data-icon="text"></i>添加文字</button>
+    <button id="add-image" class="button" disabled><i data-icon="image"></i>插入图片</button>
+    <span class="divider"></span>
+    <button id="snap" class="button toggle" aria-pressed="false" title="拖动时按 4 px 网格吸附"><i data-icon="magnet"></i>吸附</button>
+    <div class="toolbar-spacer"></div>
+    <button id="audit" class="button audit-button" disabled><span class="status-dot"></span><span id="audit-label">布局检查</span></button>
+    <span class="divider"></span>
+    <button id="present" class="button" disabled><i data-icon="play"></i>演示</button>
+  </div>
+  <main class="editor-layout">
+    <aside class="slides-panel" aria-label="幻灯片列表">
+      <div class="panel-heading"><span>幻灯片</span><span id="slide-count" class="count">0</span></div>
+      <nav id="slide-list" class="slide-list" aria-label="选择幻灯片"></nav>
+      <button id="open-example" class="example-button"><i data-icon="slides"></i>打开当前 PPT 示例</button>
+    </aside>
+    <section class="workspace" aria-label="编辑画布">
+      <div class="canvas-topbar"><span id="page-label">工作区</span><div class="zoom-controls"><button id="zoom-out" class="icon-button" aria-label="缩小"><i data-icon="minus"></i></button><button id="zoom-fit" class="zoom-fit" title="适应窗口">适应窗口</button><button id="zoom-in" class="icon-button" aria-label="放大"><i data-icon="plus"></i></button></div></div>
+      <div id="viewport" class="viewport">
+        <div id="canvas-holder" class="canvas-holder" hidden><div id="canvas" class="canvas"><iframe id="deck-frame" title="幻灯片编辑画布" sandbox="allow-same-origin"></iframe><div id="selection" class="selection" hidden><span class="selection-label" id="selection-label">文字</span><button class="resize-handle nw" data-handle="nw" aria-label="缩放左上角"></button><button class="resize-handle ne" data-handle="ne" aria-label="缩放右上角"></button><button class="resize-handle sw" data-handle="sw" aria-label="缩放左下角"></button><button class="resize-handle se" data-handle="se" aria-label="缩放右下角"></button><span class="selection-size" id="selection-size"></span></div><div id="guide-x" class="guide guide-x" hidden></div><div id="guide-y" class="guide guide-y" hidden></div></div></div>
+        <div id="empty-state" class="empty-state"><div class="empty-art" data-icon="slides"></div><p>让 HTML 幻灯片，像 PPT 一样编辑</p><span>打开现有 HTML，在画布中点选文字与图示。</span><button id="empty-open" class="button primary"><i data-icon="folder"></i>打开 HTML 或项目文件</button></div>
+      </div>
+      <footer class="workspace-footer"><span id="interaction-hint">单击选择 · 双击编辑文字 · 拖动移动</span><span id="canvas-dimensions">HTML PPT</span></footer>
+    </section>
+    <aside class="inspector" aria-label="对象属性">
+      <div class="panel-heading"><span>属性</span><span class="property-tag" id="object-type">未选择</span></div>
+      <div id="inspector-empty" class="inspector-empty"><i data-icon="cursor"></i><p>选择一个对象</p><span>在画布或下方对象列表中，<br>点选要调整的文字、图片或图示。</span></div>
+      <div id="object-properties" hidden>
+        <section class="property-section"><h2>位置与大小 <span>px</span></h2><div class="field-grid"><label><span>X</span><input id="prop-x" type="number" step="1" aria-label="X 位置"></label><label><span>Y</span><input id="prop-y" type="number" step="1" aria-label="Y 位置"></label><label><span>W</span><input id="prop-width" type="number" min="12" max="8000" step="1" aria-label="宽度"></label><label><span>H</span><input id="prop-height" type="number" min="12" max="8000" step="1" aria-label="高度"></label></div><label class="check-field"><input id="lock-ratio" type="checkbox" checked>缩放时锁定比例</label></section>
+        <section id="text-properties" class="property-section"><h2>文字</h2><button id="edit-text" class="button full"><i data-icon="edit"></i>编辑文字 <kbd>双击 / F2</kbd></button><label class="select-field"><span>字体</span><select id="prop-font" aria-label="字体"><option value="original">原稿字体</option><option value="sans">系统无衬线</option><option value="serif">系统衬线</option><option value="mono">等宽字体</option></select></label><div class="field-grid text-fields"><label><span>字号</span><input id="prop-font-size" type="number" min="6" max="200" step="1"></label><label><span>行高</span><input id="prop-line-height" type="number" min="6" max="300" step="1"></label></div><div class="format-bar"><button id="bold" class="format-button" aria-label="粗体" aria-pressed="false"><b>B</b></button><button id="italic" class="format-button" aria-label="斜体" aria-pressed="false"><em>I</em></button><span class="divider"></span><button class="format-button" data-align="left" aria-label="左对齐"><i data-icon="align-left"></i></button><button class="format-button" data-align="center" aria-label="居中对齐"><i data-icon="align-center"></i></button><button class="format-button" data-align="right" aria-label="右对齐"><i data-icon="align-right"></i></button></div><label class="color-field"><span>文字颜色</span><input id="prop-color" type="color" value="#09678f"><span id="color-value">#09678F</span></label></section>
+        <section id="image-properties" class="property-section" hidden><h2>图片与图示</h2><button id="replace-image" class="button full"><i data-icon="image"></i>替换图片</button><p class="property-note">保留当前位置与显示大小，图片按比例完整显示。</p></section>
+        <section class="property-section"><h2>对象操作</h2><div class="object-actions"><button id="duplicate-object" class="button"><i data-icon="copy"></i>复制</button><button id="bring-front" class="button"><i data-icon="layers"></i>置顶</button><button id="delete-object" class="button danger"><i data-icon="trash"></i>删除</button></div></section>
+      </div>
+      <section class="layers-section"><h2>本页对象 <span id="object-count">0</span></h2><div id="object-list" class="object-list"></div></section>
+    </aside>
+  </main>
+  <div id="present-controls" class="present-controls" hidden><button id="present-prev" class="icon-button" aria-label="上一页"><i data-icon="chevron-left"></i></button><span id="present-position"></span><button id="present-next" class="icon-button" aria-label="下一页"><i data-icon="chevron-right"></i></button><span class="divider"></span><button id="present-exit" class="button">退出演示 <kbd>Esc</kbd></button></div>
+  <dialog id="audit-dialog"><div class="dialog-heading"><h2>布局检查</h2><button id="close-audit" class="icon-button" aria-label="关闭"><i data-icon="close"></i></button></div><p class="dialog-description">检查页面边界、文字溢出与图片加载；完成修改后仍建议逐页查看。</p><div id="audit-results"></div></dialog>
+  <dialog id="files-dialog" class="files-dialog"><div class="dialog-heading"><h2>服务器文件</h2><button id="close-files" class="icon-button" aria-label="关闭文件列表"><i data-icon="close"></i></button></div><p id="files-description" class="dialog-description">直接编辑 slides 目录中的 HTML PPT 和项目文件。</p><div id="workspace-browser"><div class="file-navigation"><button id="files-up" class="button"><i data-icon="folder"></i>上一级</button><span id="files-path">slides /</span><button id="refresh-files" class="icon-button" aria-label="刷新文件列表"><i data-icon="redo"></i></button></div><input id="files-filter" type="search" class="files-filter" placeholder="筛选当前目录" aria-label="筛选文件"><div id="server-file-list" class="server-file-list"></div></div><p id="files-error" class="file-error" role="status" hidden></p><div class="files-footer"><span id="files-help">打开文件后，Ctrl / ⌘ S 保存到服务器。</span><button id="open-local" class="button"><i data-icon="folder"></i>从电脑导入</button></div></dialog>
+  <div id="toast" class="toast" role="status" hidden></div>
+  <input id="file-input" type="file" accept=".html,.htm,.json" hidden>
+  <input id="image-input" type="file" accept="image/png,image/jpeg,image/webp,image/gif,image/svg+xml" hidden>
+</body>
+</html>

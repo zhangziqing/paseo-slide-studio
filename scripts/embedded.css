@@ -1,0 +1,14 @@
+/* Paseo owns chrome colors; slide content retains the presentation theme. */
+:root{--ink:var(--paseo-foreground,#334155);--muted:var(--paseo-foregroundMuted,#8494a3);--line:var(--paseo-border,#e0e7ee);--accent:var(--paseo-accent,#09678f);--pale:var(--paseo-surface1,#edf5f9)}
+html,body{min-width:0;background:var(--paseo-surface0,#fff);color:var(--ink)}
+.app-header,.editing-toolbar,.slides-panel,.inspector,dialog,.server-file,.canvas-topbar,.present-controls{background:var(--paseo-surface0,#fff);color:var(--ink)}
+.workspace,.viewport,.workspace-footer,.slide-card,.file-navigation,.files-filter,.audit-row,.select-field select,.field-grid label{background:var(--paseo-surface1,#f3f6f9);color:var(--ink)}
+.button,.icon-button,.format-button,.brand,.field-grid input,.select-field select,.files-filter{color:var(--ink)}
+.primary{background:var(--accent);color:var(--paseo-accentForeground,#fff)}
+.document-heading,.workspace-footer,.panel-heading,.inspector-empty,.inspector-empty p,.empty-state,.empty-state p,.property-note,.layer-item,.server-file>small,.dialog-description,.files-footer>span,.save-status,.slide-card,.document-path,.check-field,.select-field,.field-grid label>span{color:var(--muted)}
+dialog{color:var(--ink);max-width:calc(100vw - 24px);box-sizing:border-box}
+.button:hover,.icon-button:hover,.server-file:hover,.layer-item:hover{background:var(--pale)}
+.primary:hover{background:var(--accent);filter:brightness(1.08)}
+.button,.slides-panel,.inspector,.field-grid label,.select-field select,.file-navigation,.server-file,.workspace-footer,.property-section{border-color:var(--line)}
+@media(max-width:850px){.editor-layout{grid-template-columns:112px minmax(180px,1fr)}.inspector{display:none}.app-header{height:auto;min-height:64px;padding:8px 10px;gap:8px;flex-wrap:wrap}.brand{display:none}.document-heading{border:0;padding:0;flex:1;min-width:100px}.header-actions .button{font-size:10px;padding:0 6px}.editing-toolbar{padding:0 8px;gap:5px;overflow:auto}.editing-toolbar>.divider{display:none}.workspace-footer{padding:0 8px}.workspace-footer #interaction-hint{display:none}.viewport{padding:12px}.slide-list{padding:8px}.editor-layout{height:calc(100vh - 112px)}}
+@media(max-width:450px){.editor-layout{grid-template-columns:78px minmax(0,1fr)}.slides-panel .panel-heading{padding:8px;font-size:10px}.slides-panel .example-button{font-size:9px;padding:7px}.slide-list{padding:5px}.thumb-label{gap:3px;font-size:9px}.slide-card{padding:4px}.editing-toolbar .button{font-size:10px;padding:0 6px}.editing-toolbar .toolbar-spacer{display:none}.canvas-topbar{padding:0 8px}.zoom-controls{gap:2px}.zoom-fit{font-size:10px}.viewport{padding:8px}.workspace-footer{font-size:9px}.header-actions{margin-left:auto}.header-actions #download-project{display:none}}

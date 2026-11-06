@@ -1,0 +1,10 @@
+node_modules/
+dist/
+*.tgz
+*.bundle
+__pycache__/
+*.py[cod]
+.ppt-backups/
+.env
+.env.*
+.DS_Store
