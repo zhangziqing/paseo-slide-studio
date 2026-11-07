@@ -1,0 +1,4 @@
+Pygments>=2.15
+fonttools[woff]>=4.38
+python-pptx>=1.0
+PyMuPDF>=1.24
