@@ -1,9 +1,34 @@
 # Template fidelity and onboarding
 
-This skill supplies a generator and browser runtime. It does not bundle a PPTX,
-POTX, ready-made theme, background artwork or fonts. Supply a reviewed theme in
+This skill supplies a generator, browser runtime and the unbranded Clean Blue
+theme. It does not bundle PPTX/POTX files, logos or fonts. Custom themes belong in
 the presentation project, either extracted from the user's template or authored
-for the requested design. Do not copy assets from another installed skill.
+for the requested design.
+
+## Bundled Clean Blue theme
+
+[Clean Blue](../assets/themes/clean-blue/theme.json) is a complete 960 × 540 theme
+with six layouts: cover, alternate cover, left-aligned content, centered-title
+content, section divider and two columns. It retains the original layout geometry,
+spacing, blue title treatment, cover rule and dynamic page numbers. Institutional
+and personal logos, footer affiliation text and identifying metadata are removed;
+the only background artwork is a blue rule. The two cover layouts intentionally
+retain their original, identical geometry.
+
+Render [the sample outline](../examples/clean-blue.md) with installed Liberation
+Sans, Noto Sans CJK SC and DejaVu Sans Mono regular/bold faces:
+
+```bash
+python3 "$SKILL/scripts/generate.py" "$SKILL/examples/clean-blue.md" \
+  --theme "$SKILL/assets/themes/clean-blue/theme.json" --local-fonts \
+  -o presentation.html
+```
+
+These named fonts match the accompanying local-face mappings. No font binaries or
+absolute source paths are included. For a portable deck, supply `--font-config`
+with your approved font files instead of `--local-fonts`, using the format below.
+The user's template fonts and explicit choices take precedence. Make customizations
+in a project copy of the theme so skill updates do not overwrite them.
 
 ## Units and styles
 

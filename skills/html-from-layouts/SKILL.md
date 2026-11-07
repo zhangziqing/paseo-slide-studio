@@ -11,8 +11,8 @@ description: >-
 
 Create an editable, offline **single HTML file** with embedded CSS, JavaScript,
 images and vector backgrounds from a reviewed user-supplied theme. The parsers,
-browser runtime and helpers are bundled here. No PowerPoint template, branded
-artwork, font binaries or machine-specific font paths are included. Embedded-font
+browser runtime and helpers are bundled here, along with an unbranded Clean Blue
+theme. No PPTX/POTX, logos, font binaries or machine-specific font paths are included. Embedded-font
 decks need no CDN, server, source files or other skill when opened. Outlines,
 provenance manifests and QA reports remain separate review artifacts.
 
@@ -30,8 +30,9 @@ Preserve original wording, explicit page boundaries, list nesting, numbering,
 inline colors and formatting unless the user authorizes changes. Read
 [references/template-fidelity.md](references/template-fidelity.md) for geometry,
 font mappings and onboarding. Every generation requires an explicit `--theme`;
-there is no fallback presentation template. Keep user-provided theme assets in
-the presentation project, outside this skill.
+there is no automatic fallback. Use the bundled Clean Blue theme when requested
+or when the user has no template preference. Keep custom theme assets in the
+presentation project, outside this skill.
 
 - Retain the reviewed theme's canvas, placeholder geometry, title/body styles,
   insets and paragraph spacing. Do not infer a layout's role from its name or order.
@@ -85,6 +86,10 @@ reuses unique unchanged prompts; review factual currency and ambiguous/changed g
 `--color` / `--no-ai-marker` support requested style overrides.
 
 ## Generate and present
+
+For the bundled six-layout theme, see
+[the Clean Blue theme reference](references/template-fidelity.md#bundled-clean-blue-theme).
+It includes a complete `theme.json` and a sample outline. For a custom theme:
 
 ```bash
 python3 "$SKILL/scripts/generate.py" slides.completed.md -o presentation.html \

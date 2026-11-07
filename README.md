@@ -42,7 +42,9 @@ mkdir -p "${CODEX_HOME:-$HOME/.codex}/skills"
 cp -R -i skills/html-from-layouts "${CODEX_HOME:-$HOME/.codex}/skills/"
 ```
 
-在 agent 中调用 `$html-from-layouts`。Python 依赖见 skill 的 `requirements.txt`；浏览器检查需要 Chrome/Chromium。skill 不包含 PPT 模板、背景图、Logo、字体文件或个人字体路径，生成时必须通过 `--theme` 指定使用者的主题，并配置字体。可从自己的 PPTX/POTX 提取主题，步骤见 [模板与字体配置](skills/html-from-layouts/references/template-fidelity.md)。
+在 agent 中调用 `$html-from-layouts`。Python 依赖见 skill 的 `requirements.txt`；浏览器检查需要 Chrome/Chromium。随附 [Clean Blue 主题 JSON](skills/html-from-layouts/assets/themes/clean-blue/theme.json) 和 [六种版式示例](skills/html-from-layouts/examples/clean-blue.md)，已去除机构、学校和个人标识，保留蓝色横线及原版式。
+
+skill 不包含 PPTX/POTX、Logo、字体文件或个人字体路径。生成时仍须通过 `--theme` 选择主题，并配置字体。Clean Blue 可使用本机已安装的 Liberation Sans、Noto Sans CJK SC 和 DejaVu Sans Mono，也可显式提供字体文件并嵌入 HTML。自有 PPTX/POTX 仍可提取为主题，步骤见 [模板与字体配置](skills/html-from-layouts/references/template-fidelity.md)。
 
 编辑器保存的 HTML 修改不会回写到大纲；重新生成可能覆盖这些修改。该 skill 使用自己的 HTML 结构约定，不代表任意网页 PPT 都能兼容。
 
@@ -60,7 +62,7 @@ npm pack --pack-destination dist
 
 `npm run check` 检查生成文件、TypeScript 类型，并运行真实 Python 文件读写集成测试。测试在系统临时目录中生成文稿，无需开放端口。
 
-安装 skill 的 Python 依赖后，可单独运行生成流程测试；测试会创建临时主题，不需要自带 PPT 模板：
+安装 skill 的 Python 依赖后，可单独运行生成流程测试；测试使用临时主题和随附的 Clean Blue，不需要额外的 PPT 模板：
 
 ```bash
 python3 -m unittest discover -s skills/html-from-layouts/scripts -p 'test_*.py'
@@ -70,7 +72,7 @@ python3 -m unittest discover -s skills/html-from-layouts/scripts -p 'test_*.py'
 - `editor/`：编辑器源码快照，不含演示文稿、截图或字体文件。
 - `scripts/`：嵌入适配和构建；所有输入均在仓库中。
 - `tests/`：备份、冲突、资源读取、路径边界及进程清理检查。
-- `skills/html-from-layouts/`：独立的 HTML PPT 生成 skill，不含演示模板。
+- `skills/html-from-layouts/`：独立的 HTML PPT 生成 skill，附无标识的 Clean Blue 主题。
 
 npm 包只包含运行模块、插件清单和使用说明；Git 仓库保留构建源码及锁文件。无需运行时 npm 依赖，Paseo 提供宿主模块。验证范围见 [docs/verification.md](docs/verification.md)。
 
