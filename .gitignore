@@ -3,6 +3,7 @@ dist/
 *.tgz
 *.bundle
 __pycache__/
+.venv/
 *.py[cod]
 .ppt-backups/
 .env

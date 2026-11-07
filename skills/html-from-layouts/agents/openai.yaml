@@ -1,0 +1,4 @@
+interface:
+  display_name: "HTML from Layouts"
+  short_description: "Template-faithful offline HTML slide decks"
+  default_prompt: "Use $html-from-layouts to create an offline HTML slide deck matching my presentation template."
