@@ -1,6 +1,7 @@
 """Behavior checks for source preservation and fail-closed HTML generation."""
 import hashlib
 import json
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -190,6 +191,18 @@ class WorkflowTests(unittest.TestCase):
         manifest = json.loads(self.out.with_suffix('.manifest.json').read_text())
         self.assertEqual(manifest['font_provenance'], [])
         self.assertEqual(manifest['font_policy'], 'real installed local faces')
+
+    def test_bundled_clean_blue_example_generates_all_six_layouts(self):
+        theme = self.root / 'copied-theme'
+        shutil.copytree(SKILL / 'assets/themes/clean-blue', theme)
+        shutil.copyfile(SKILL / 'examples/clean-blue.md', self.src)
+        generate(self.src, self.out, theme / 'theme.json', local_fonts=True)
+        manifest = json.loads(self.out.with_suffix('.manifest.json').read_text())
+        self.assertEqual([page['layout_index'] for page in manifest['pages']], list(range(6)))
+        document = self.out.read_text()
+        self.assertIn('data:image/svg+xml;base64,', document)
+        self.assertNotIn(str(theme), document)
+        self.assertIn('中英文混排示例', document)
 
 
 if __name__ == '__main__':
