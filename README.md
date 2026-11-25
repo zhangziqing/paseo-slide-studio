@@ -31,6 +31,8 @@ Paseo 插件总开关需已开启。更新本地源码后运行 `paseo plugin re
 
 Settings → Plugins → Slide Studio 可配置主机上的 Python 可执行文件，默认为 `python3`。Python 文件进程使用标准输入输出，不监听 HTTP 端口。客户端 IndexedDB 保存草稿，重新打开同一文件可恢复；未保存的标签页有关闭确认。
 
+支持在 `deck-assets` JSON 中去重存储的图片与共享字体。编辑画布和缩略图显示完整静态图；保存后仍保留紧凑的资源表，导出 HTML 可继续切换动画与静态图。编辑器不会执行文稿脚本。
+
 ## 生成 HTML PPT 的 skill
 
 仓库另附 [html-from-layouts](skills/html-from-layouts/SKILL.md)，支持 Markdown 大纲、标记空缺补全、单文件离线 HTML 生成，以及浏览器布局检查、截图和 PDF 导出。生成的 HTML 可直接在 Slide Studio 中编辑。
@@ -61,6 +63,12 @@ npm pack --pack-destination dist
 ```
 
 `npm run check` 检查生成文件、TypeScript 类型，并运行真实 Python 文件读写集成测试。测试在系统临时目录中生成文稿，无需开放端口。
+
+图片资源的浏览器回归测试使用临时生成的 SVG、PNG 与最小字体，不依赖演示文稿或系统字体，也不启动额外的文件服务：
+
+```bash
+CHROME_BIN=/path/to/chrome npm run test:browser
+```
 
 安装 skill 的 Python 依赖后，可单独运行生成流程测试；测试使用临时主题和随附的 Clean Blue，不需要额外的 PPT 模板：
 

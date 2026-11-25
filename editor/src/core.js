@@ -30,6 +30,70 @@
     copy.querySelectorAll('.marker,.sparkle,.number-star,style,script').forEach(n => n.remove());
     return copy.textContent.trim();
   };
+  // Read packed image/font data without running the presentation's scripts.
+  // Keep editing static and compact the same data again when saving a deck.
+  function packedImages(doc) {
+    const payload = doc.getElementById('deck-assets');
+    if (!payload || payload.type !== 'application/json') return null;
+    const resources = JSON.parse(payload.textContent);
+    if (!resources?.assets || !Array.isArray(resources.fonts)) throw new Error('内嵌图片资源表无效');
+    const images = [...doc.querySelectorAll('img[data-deck-asset]')];
+    const fontSources = new Map(), urls = new Map();
+    for (const style of doc.querySelectorAll('style')) {
+      const sheet = new CSSStyleSheet(); sheet.replaceSync(style.textContent);
+      for (const rule of sheet.cssRules) {
+        if (rule.type !== CSSRule.FONT_FACE_RULE) continue;
+        const family = rule.style.getPropertyValue('font-family').replace(/^["']|["']$/g, '');
+        const weight = Number(rule.style.getPropertyValue('font-weight')) || 400;
+        fontSources.set(family + ':' + weight, rule.style.getPropertyValue('src'));
+      }
+    }
+    const fonts = new Map(resources.fonts.map(face => [face.token, fontSources.get(face.family + ':' + face.weight)]));
+    function uri(id) {
+      if (urls.has(id)) return urls.get(id);
+      const asset = resources.assets[id];
+      if (!asset || typeof asset.type !== 'string' || !asset.type.startsWith('image/')) throw new Error('找不到内嵌图片：' + id);
+      let base64 = asset.base64;
+      if (asset.type === 'image/svg+xml') {
+        const text = asset.text.replace(/__DECK_FONT_\d+__/g, token => {
+          const source = fonts.get(token);
+          if (!source) throw new Error('内嵌图片缺少字体：' + token);
+          return source;
+        });
+        const bytes = new TextEncoder().encode(text);
+        let binary = '';
+        for (let offset = 0; offset < bytes.length; offset += 0x8000) binary += String.fromCharCode(...bytes.subarray(offset, offset + 0x8000));
+        base64 = btoa(binary);
+      }
+      const url = 'data:' + asset.type + ';base64,' + base64;
+      urls.set(id, url); return url;
+    }
+    function original(image) {
+      const current = image.getAttribute('src');
+      return !current || current === uri(image.dataset.deckAsset) ||
+        Boolean(image.dataset.deckStill && current === uri(image.dataset.deckStill));
+    }
+    return {
+      refresh({still = false, active = 0} = {}) {
+        const slides = [...doc.querySelectorAll('.slide')];
+        for (const image of images) {
+          if (!original(image)) continue; // A replacement image belongs to the author.
+          const useStill = image.dataset.deckStill && (still || image.closest('.slide') !== slides[active]);
+          const id = useStill ? image.dataset.deckStill : image.dataset.deckAsset;
+          const url = uri(id);
+          if (image.getAttribute('src') !== url) image.setAttribute('src', url);
+          image.dataset.deckResolved = id;
+        }
+      },
+      compact() {
+        for (const image of images) {
+          if (original(image)) image.removeAttribute('src');
+          else { image.removeAttribute('data-deck-asset'); image.removeAttribute('data-deck-still'); }
+          image.removeAttribute('data-deck-resolved');
+        }
+      },
+    };
+  }
   function sanitize(root) {
     root.querySelectorAll('script,iframe,object,embed,base,meta[http-equiv],link[rel="import"]').forEach(n => n.remove());
     const nodes = [root, ...root.querySelectorAll('*')];
@@ -70,6 +134,7 @@
     constructor(html, filename = 'presentation.html') {
       if (typeof html !== 'string' || html.length > 60_000_000) throw new Error('HTML 为空或文件超过 60 MB');
       this.doc = new DOMParser().parseFromString(html, 'text/html');
+      packedImages(this.doc)?.refresh({still: true});
       this.filename = filename;
       this.resourceBase = null;
       this.slides = [...this.doc.querySelectorAll('.slide')];
@@ -132,6 +197,8 @@
     }
     html({project = false} = {}) {
       const clone = this.doc.cloneNode(true);
+      const packed = packedImages(clone);
+      packed?.compact();
       clone.body.classList.remove('overview');
       clone.querySelectorAll('.qa-banner').forEach(n => n.remove());
       for (const slide of clone.querySelectorAll('.slide')) {
@@ -151,6 +218,10 @@
         if (!clone.getElementById('deck-config')) {
           const config = clone.createElement('script'); config.id = 'deck-config'; config.type = 'application/json';
           config.textContent = JSON.stringify({width: this.width, height: this.height, font_faces: []}); clone.body.append(config);
+        }
+        if (packed) {
+          const loader = clone.createElement('script'); loader.id = 'ppt-packed-images';
+          loader.textContent = 'window.HtmlPptPackedImages = ' + packedImages.toString() + ';'; clone.body.append(loader);
         }
         const runtime = clone.createElement('script'); runtime.id = 'ppt-runtime';
         runtime.textContent = '(' + window.HtmlPptRuntime.toString() + ')();'; clone.body.append(runtime);
@@ -215,5 +286,6 @@
     }
   }
 
+  window.HtmlPptPackedImages = packedImages;
   window.HtmlPpt = {DeckDocument, History, DraftStore, cleanText, sanitize, clearEditing, serializeSlide, kind, imageKind, number, offset, scaling, uid, resourceCss, resolveResources};
 })();
