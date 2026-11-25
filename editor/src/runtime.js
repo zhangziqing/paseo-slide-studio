@@ -4,6 +4,9 @@ window.HtmlPptRuntime = function presentationRuntime() {
   const config = JSON.parse(document.getElementById('deck-config').textContent);
   const slides = [...document.querySelectorAll('.slide')];
   const capture = new URLSearchParams(location.search).has('capture');
+  const packed = window.HtmlPptPackedImages?.(document);
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)');
+  let printing = false;
   let index = Math.max(0, Math.min(slides.length - 1, (parseInt(location.hash.slice(1), 10) || 1) - 1));
   let toolbar = document.querySelector('.toolbar');
   if (!toolbar) {
@@ -23,6 +26,9 @@ window.HtmlPptRuntime = function presentationRuntime() {
       slide.style.top = capture ? '0px' : Math.max(0, (innerHeight - 50 - config.height * scale) / 2) + 'px';
     });
   }
+  function refreshImages() {
+    packed?.refresh({active: index, still: capture || printing || reduced.matches || document.hidden || document.body.classList.contains('overview')});
+  }
   function show(n) {
     index = Math.max(0, Math.min(slides.length - 1, n));
     slides.forEach((slide, i) => {
@@ -32,7 +38,7 @@ window.HtmlPptRuntime = function presentationRuntime() {
     });
     document.getElementById('position').textContent = `${index + 1} / ${slides.length}`;
     try { history.replaceState(null, '', '#' + (index + 1)); } catch { /* An embedded browser can forbid history changes. */ }
-    fit();
+    fit(); refreshImages();
   }
   function audit() {
     const issues = [];
@@ -68,13 +74,22 @@ window.HtmlPptRuntime = function presentationRuntime() {
   });
   addEventListener('hashchange', () => show((parseInt(location.hash.slice(1), 10) || 1) - 1));
   addEventListener('resize', fit);
-  addEventListener('beforeprint', () => slides.forEach(slide => { slide.inert = false; slide.setAttribute('aria-hidden', 'false'); }));
-  addEventListener('afterprint', () => show(index));
+  reduced.addEventListener('change', refreshImages);
+  document.addEventListener('visibilitychange', refreshImages);
+  addEventListener('beforeprint', () => { printing = true; refreshImages(); slides.forEach(slide => { slide.inert = false; slide.setAttribute('aria-hidden', 'false'); }); });
+  addEventListener('afterprint', () => { printing = false; show(index); });
   show(index);
   window.deckReady = (async () => {
     const fonts = await Promise.all((config.font_faces || []).map(async (face, i) => {
       const source = face.source || (face.local || []).map(n => `local(${JSON.stringify(n)})`).join(',');
-      try { await new FontFace('ExportProbe' + i, source, {weight: String(face.weight)}).load(); return {family: face.family, weight: face.weight, loaded: true}; }
+      try {
+        if (source) await new FontFace('ExportProbe' + i, source, {weight: String(face.weight)}).load();
+        else {
+          const loaded = await document.fonts.load(`${face.weight || 400} 20px "${face.family}"`);
+          if (!loaded.some(font => font.status === 'loaded')) throw new Error('Embedded font missing');
+        }
+        return {family: face.family, weight: face.weight, loaded: true};
+      }
       catch { return {family: face.family, weight: face.weight, loaded: false}; }
     }));
     await document.fonts.ready;

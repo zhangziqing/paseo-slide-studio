@@ -20,6 +20,7 @@
     "prepare:editor": "node scripts/prepare.mjs",
     "typecheck": "tsc --noEmit",
     "test": "node tests/services.test.mjs",
+    "test:browser": "node --test tests/packed-images.browser.test.mjs",
     "check": "node scripts/prepare.mjs --check && npm run typecheck && npm test",
     "prepack": "npm run prepare:editor"
   },
